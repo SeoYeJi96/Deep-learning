@@ -1,0 +1,171 @@
+## 1. Shallow Neural Networks
+
+- 목차
+    - Binary Classification
+    - Logistic Regression
+    - Gradient Descent
+    - Vectorization
+    - Some Python Codes
+    - Shallow Neural Networks
+
+### 1-1. 이진 분류:Binary Classification
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/123b158b-53d6-4dcd-a2e7-e266fc854df7/Untitled.png)
+
+- 보통 8픽셀이고 64*64*3=12288픽셀
+- input(x): 픽셀 전체(n=12288) color 이미지전체를 구성, output(y): 1(고양이다.) 또는 0(고양이가 아니다.)
+- x를 열벡터로 변환해야 컴퓨터가 받아들일 수 있다.
+- $(x, y)\quad x\in R^{n_x}, y\in\{0,1\}$ x는 input이자 n차원 벡터, y는 output
+- m개의 training examples: $\{(x^{(1)},y^{(1)}),(x^{(2)},y^{(2)}),...,(x^{(m)},y^{(m)})\}$
+- $m\rightarrow m_{train},m_{test}$
+- $X=[x^{(1)}\ x^{(2)} \ ... \ x^{(m)}], X\in R^{n_x\times m}$ 행렬은 대문자로 표기
+- $Y=[y^{(1)}\ y^{(2)} \ ... \ y^{(m)}], Y\in R^{1\times m}$
+
+### 1.2. 로지스틱 회귀: Logistic Regression
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/d5bf56e6-3d30-457c-84c5-e8b321159148/Untitled.png)
+
+- 1.1장에서 했던 이진 분류에서 사용할 수 있는 학습 알고리즘이 로지스틱 회귀이다.
+- $\hat{y}=P(y=1|x)$: x과 주어졌을 때, y=1일 확률로 0과 1 사이의 값이며 1에 가까울수록 고양이에 가까워짐.
+- 다른 책에서는 $w\in R^{n_x+1}$로 쓰이기도 함.
+- $b(bias)\in R$
+- 선형회귀: $z=w^Tx+b$
+    - 위와 같이 1차 선형 함수로 표현된다면 이는 w, x, b의 값에 따라서 0~1 사이를 벗어나는 값을 가지게 될 수 있다.
+- $\hat {y}=\sigma(w^Tx+b)=\sigma(z)$
+    - $\hat{y}$이 0 또는 1로 표현되도록 시그모이드 함수 사용
+    - 0과 1 사이의 값으로 fitting
+    - 고양이가 아니면 w, b가 -(음수)
+    - $\sigma(z)=\frac{1}{1+e^{-z}}$ , z가 크다면 1에 가까운 값이고 음으로 작다면 0에 가까운 값을 나타나게 되어 1과 0으로 표현 가능하다.
+
+### 1.2.1. Logistic Regression: cost function
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/4c4f64ed-4886-4e57-8865-794c34173b15/Untitled.png)
+
+- $\hat{y}$(추정값)과 $y$(1 or 0)의 차이인 error가 적도록 w,b와 같은 파라미터를 학습한다. 또한 제곱을 해야 error가 양수가 나오기 때문에 제곱을 해줌.
+- $L(\hat{y},y)=-(ylog\hat{y}+(1-y)log(1-\hat{y}))$은 Convex한 Loss 함수
+- Cost function은 모든 입력에 대한 오차를 계산하는 함수이고, Loss function은 하나의 입력에 대한 오차를 계산하는 함수이다. 따라서 Cost function은 Loss의 평균이다.
+
+### 1.3. Gradient Descent
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/9aa802bf-fab6-4917-99a7-4ce72c7117fd/Untitled.png)
+
+- Gradient Descent는 Cost function인 J(w,b)가 minimize한 w, b의 값을 찾아가는 과정이다.
+- 따라서 Cost function은 Convex형태여야 한다.
+- w, b의 값을 0으로 설정
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/49cd8dba-afff-4da2-97c7-1ca6fcad38ee/Untitled.png)
+
+- :=는 지정한다는 기호를 의미
+- w는 초기값 0으로 설정하고 $\alpha$는 learning rate(학습률)로 보폭 사이즈, 얼만큼의 스텝으로 나아갈 것인가를 정하는 것을 의미하고 $\alpha$는 양수이다. $\alpha$가 크면 클수록, 보폭사이즈도 커지며 $\alpha$가 작을수록, 보폭사이즈는 작아진다.
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/3bd61319-99e1-4347-bb1f-93eecb37af23/Untitled.png)
+
+- 위 그래프에서 왼쪽 점을 보면 기울기가 음수이므로 $w-\alpha\frac{dJw}{dw}$에서 $\alpha$는 양수, $\frac{dJw}{dw}$는 음수이다. 따라서 $w-\alpha\frac{dJw}{dw}$는 양수이다.
+- Cost가 낮은 쪽으로 함수의 기울기를 따라서 최적의 값으로 학습의 반복 과정을 거쳐서 한 스텝씩 업데이트 한다.
+- w와 b의 값이 위의 과정을 통해 변하고 최적의 값에 도달했을 때 w와 b가 학습을 통해 찾고자 하는 값이다. 즉, 변하지 않는 지점에서 멈춘 그 값이 찾고자 하는 w와 b이다.
+
+### 1.3.1. 편미분: Derivatives
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/51b78925-1b73-428d-9fd6-4fef35ca5e0f/Untitled.png)
+
+- a=2일 때 왼쪽 그래프는 f(2)=6, 오른쪽 그래프는 f(2)=4
+- a=2.001일 때 왼쪽 그래프는 f(2.001)=6.003, 오른쪽 그래프는 f(2.001)=4.004001
+- 왼쪽 그래프의 df/da=0.003/0.001=3, 오른쪽 그래프의 df/da=0.004/0.001=4
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/02d28e71-ab2d-45c7-95b9-e0c7a4afede3/Untitled.png)
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/f2ec357a-c313-42dd-acd2-b75f9fe2be59/Untitled.png)
+
+- J(a,b,c)=3(a+bc)의 계산 그래프를 만드는 과정
+- input을 받았고 output인 J를 계산하기 위해 순차적 계산을 해나간다. 이는 딥러닝에서의 Forward Propagation이다.
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/767cf043-35e1-4337-9bf4-2228ad755c03/Untitled.png)
+
+- Backward Propagation은 J를 v에 대해서 미분하고, v를 a와 u에 대해서 미분하고, u를 b와 c에 대해서 미분을 해서 최종적으로 J를 a, b, c에 대해서 미분한 값을 찾아가는 과정이다.
+- $\frac{dJ}{dv}=3,\ \frac{dJ}{da}=\frac{dJ}{dv}\frac{dv}{da}=3,\ \frac{dJ}{db}=\frac{dJ}{dv}\frac{dv}{du}\frac{du}{db}=6,\ \frac{dJ}{dc}=\frac{dJ}{dv}\frac{dv}{du}\frac{du}{dc}=9$
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/6361f710-8c81-4270-b995-6a88271ba794/Untitled.png)
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/0273a62d-d7ad-48ff-b4b0-d2c4c25f915a/Untitled.png)
+
+- $\frac{dL}{dz}=\frac{dL}{da}\frac{da}{dz}=?$
+- $\frac{dL}{da}=-\frac{y}{a}+\frac{1-y}{1-a},\ \frac{da}{dz}=a(1-a)$이므로 $\frac{dL}{dz}=-y(1-a)+a(1-y)=a-y$
+- L(a,y)를 w,b로 미분하여 Gradient 알고리즘에 의해 업데이트할 dw,db 구하기
+    - $\frac{dL(a,y)}{dw_1}=\frac{dL}{dz}\frac{dz}{dw_1}=(a-y)x_1$
+- 업데이트
+
+### 1.3.2. m개의 데이터에 대한 경사하강법
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/15b5bd34-7dcc-490c-a288-76b3c77e79e7/Untitled.png)
+
+- 데이터의 개수가 m개일 때의 Cost 함수는 위와 같다.
+- 1번째 데이터에 대한 Loss 값, 2번째 데이터에 대한 Loss 값,…,m번째 데이터데 대한 Loss 값을 모두 합하여 평균을 구한 것이다.
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/3ba9c8a5-2d86-475f-b92d-e674db94b6bc/Untitled.png)
+
+- J, dw1,dw2, db를 모두 0으로 초기화를 시킨다.
+- for 문을 사용해 1~m까지 반복하여 Cost 함수를 구한다.
+- $w^Tx+b,a=\sigma(z)$의 값을 구하고 Cost함수인 J를 구한다.
+- Backward Propagation과 Gradient Descent 실행을 위해 dz, dw1, dw2, db의 값을 구한다.
+- m개의 데이터에 대한 것이므로, 마지막에 각각의 값을 m으로 나누어 평균을 구한다.
+- dw1, dw2, db를 Gradient Descent 알고리즘을 통해서 최종적으로 w1, w2, b를 업데이트 하게 된다.
+
+### 1.4. Vectorization
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/35c400ec-0b11-4dab-89d3-aacbcbd4955c/Untitled.png)
+
+- 많은 데이터에 대한 딥러닝 알고리즘을 학습하는 것은 오랜 시간이 걸리므로 벡터화는 딥러닝 알고리즘의 속도 향상의 중요한 역할을 한다.
+- 벡터화 되지 않은 경우는 w가 n개일 때, $z=w^Tx+b$를 구현하려면, w와 x는 각각 n차원의 열벡터이므로 내적을 위해 w를 Transpose시켜주고 곱해줘야 한다. 그리고 z를 0으로 초기화 시킨 후 for loop를 통해 반복적으로 계산해야한다.
+- 반면, 벡터화가 된 경우는 $z=w^Tx+b$를 벡터화 시켜서 두개의 열벡터간의 곱을 np.dot으로 해결할 수 있다.
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/df740756-d9b3-4097-915a-c1cbc7aa7eb6/Untitled.png)
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/8758a90b-51c3-42f2-98ed-ecb427bd8c7b/Untitled.png)
+
+- Cost가 최소가 되는 w, b를 찾아가는 것이 목표
+- J, dw1, dw2, db를 모두 초기화하고 1~m까지 반복을 실행
+- 주어진 입력값에 대한 예측값을 구하기 위해 로지스틱 선형회귀식을 가지고 z를 구한 뒤 시그모이드 함수에 집어넣어 0과 1로 된 값으로 변환해준다. 즉, $a^{(i)}$가 구해진다.
+- 그런 다음 실제값과 예측한 값과의 차이를 Loss함수로 계산하고 그 값을 J에 업데이트
+- L(a, y)를 z로 미분한 dz는 a-y라는 식으로 계산
+- 바로 위의 식과 chain rule을 이용하여 L(a,y)를 w,b로 미분한 값을 구해보면 $(a-y)x_1$이다. 이를 통해 경사하강법에 업데이트할 $dw_1, dw_2$을 계산한다.
+- 업데이트를 하기 전에 구한 $dw_1, dw_2, db$은 m개의 데이터에 대한 것이므로, 마지막에 각각의 값을 m으로 나누어주고 업데이트 된 값을 가지고 다시 루프를 반복한다.
+- 2개의 loop가 노란색으로 하이라이트 표시된 부분에 의해 1개의 loop가 된다.
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/3a3095e1-decc-4f04-a0ea-d7455f3e475c/Untitled.png)
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/1c007c47-ddfd-45b0-886a-046abf980139/Untitled.png)
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/f9982e5c-ff5f-465c-b3aa-6574be55999e/Untitled.png)
+
+### 1.5. Some Python Codes
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/2ea7740b-587b-43b6-85f0-0689d8054e19/Untitled.png)
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/feae4ba3-13ba-4a6d-b2da-e93d882e9cb9/Untitled.png)
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/9d5ac5ff-3aed-42b0-a4bc-00077c8b70c5/Untitled.png)
+
+### 1.6. Shallow Neural Networks
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/93570aae-fcd0-461a-840b-27de98149601/Untitled.png)
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/0ab94f51-6e09-4a27-a5c8-91d557916e5d/Untitled.png)
+
+- input에서 output까지 가중치를 업데이트하면서 sigmoid, relu를 통해 결과값을 냈다면, 역전파 알고리즘은 그렇게 도출된 결과값을 통해 다시 output에서 input까지 역방향으로 가면서 가중치를 재업데이트를 해주는 방법
+- Input layer은 0번째 layer, Hidden layer은 1번째 layer, Output layer은 2번째 layer로 보통 Input layer은 layer로 안세므로 여기선 2 layer이다.
+- z와 a는 항상 차원이 같다.
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/f5b4bff3-0c16-44dc-b945-d0a1f101758c/Untitled.png)
+
+- $a_1^{[1]}$은 1번째 layer의 1번째 unit
+- $R^{4\times3}$에서 앞에 있는 4는 현재 layer이고 뒤에 있는 3은 이전 layer이다.
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/bc24d90e-2b97-417a-96fe-d6d878622540/Untitled.png)
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/e195a943-8033-43c8-abf0-1516baf4b78a/Untitled.png)
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/6ecf6056-5045-4c41-a0a5-f5c48443d734/Untitled.png)
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/ca63d491-27ec-408b-a267-218047f954d7/Untitled.png)
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/039d4905-814b-4ebd-986d-8cf3aa41e4bf/ddda3ed6-7bdb-4d32-8641-173625fbbac5/Untitled.png)
